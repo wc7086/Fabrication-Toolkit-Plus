@@ -9,6 +9,7 @@ import math
 import shutil
 from collections import defaultdict
 from typing import Tuple
+import datetime
 
 # Interaction with KiCad.
 import pcbnew  # type: ignore
@@ -271,6 +272,24 @@ class ProcessManager:
                     # writing data of CSV file
                     if ('**' not in component['Designator']):
                         csv_writer.writerow(component.values())
+
+    def fuck_jlc(self, temp_dir, header, fuck_jlc):
+        if fuck_jlc:
+            format_header = header.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            for filename in os.listdir(temp_dir):
+                file_path = os.path.join(temp_dir, filename)
+                try:
+                    with open (file_path, 'r+', encoding='utf-8') as f:
+                        original_content = f.read()
+                        f.seek(0,0)
+                        for line in format_header:
+                            f.write(line)
+                        f.write(original_content)
+                except UnicodeDecodeError:
+                    return False
+                except Exception:
+                    return False
+            return True
 
     def generate_archive(self, temp_dir, temp_file):
         '''Generate the archive file.'''

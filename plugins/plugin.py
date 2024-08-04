@@ -4,7 +4,7 @@ import pcbnew # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, EXTRA_LAYERS
+from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, EXTRA_LAYERS, FUCK_JLC
 from .utils import load_user_options, save_user_options, get_layer_names
 
 
@@ -32,7 +32,8 @@ class KiCadToJLCForm(wx.Frame):
             EXTEND_EDGE_CUT_OPT: False,
             AUTO_TRANSLATE_OPT: True,
             AUTO_FILL_OPT: True,
-            EXCLUDE_DNP_OPT: False
+            EXCLUDE_DNP_OPT: False,
+            FUCK_JLC: False
         })
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
@@ -53,6 +54,8 @@ class KiCadToJLCForm(wx.Frame):
         self.mAutomaticFillCheckbox.SetValue(userOptions[AUTO_FILL_OPT])
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components from BOM')
         self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
+        self.mFuckJLCCheckbox = wx.CheckBox(self, label='Fuck JLC')
+        self.mFuckJLCCheckbox.SetValue(userOptions[FUCK_JLC])
 
         self.mGaugeStatus = wx.Gauge(
             self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(600, 20), wx.GA_HORIZONTAL)
@@ -71,6 +74,7 @@ class KiCadToJLCForm(wx.Frame):
         boxSizer.Add(self.mAutomaticTranslationCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mAutomaticFillCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
+        boxSizer.Add(self.mFuckJLCCheckbox, 0 , wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
         boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
 
@@ -88,6 +92,7 @@ class KiCadToJLCForm(wx.Frame):
         options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslationCheckbox.GetValue()
         options[AUTO_FILL_OPT] = self.mAutomaticFillCheckbox.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
+        options[FUCK_JLC] = self.mFuckJLCCheckbox.GetValue()
 
         save_user_options(options)
 
@@ -97,6 +102,7 @@ class KiCadToJLCForm(wx.Frame):
         self.mAutomaticTranslationCheckbox.Hide()
         self.mAutomaticFillCheckbox.Hide()
         self.mExcludeDnpCheckbox.Hide()
+        self.mFuckJLCCheckbox.Hide()
         self.mGenerateButton.Hide()
         self.mGaugeStatus.Show()
 
@@ -118,7 +124,7 @@ class KiCadToJLCForm(wx.Frame):
 # Plugin definition
 class Plugin(pcbnew.ActionPlugin):
     def __init__(self):
-        self.name = "Fabrication Toolkit"
+        self.name = "Fabrication Toolkit Plus"
         self.category = "Manufacturing"
         self.description = "Toolkit for automating PCB fabrication process with KiCad and JLC PCB"
         self.pcbnew_icon_support = hasattr(self, "show_toolbar_button")

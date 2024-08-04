@@ -62,6 +62,10 @@ class ProcessThread(Thread):
             self.progress(70)
             self.process_manager.generate_bom(temp_dir)
 
+            # Fuck JLC
+            self.progress(75)
+            self.process_manager.fuck_jlc(temp_dir_gerber, JLC_HEADER, self.options[FUCK_JLC])
+
             # generate production archive
             self.progress(85)
             temp_file = self.process_manager.generate_archive(temp_dir_gerber, temp_file)
