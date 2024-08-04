@@ -1,26 +1,26 @@
 {
     "$schema": "https://go.kicad.org/pcm/schemas/v1",
-    "name": "Fabrication Toolkit",
+    "name": "Fabrication Toolkit Plus",
     "description": "JLC PCB fabrication toolkit",
-    "description_full": "Toolkit for automating PCB fabrication process with KiCad and JLC PCB. \n\n Features: \n\u2022 Generates gerber files in correct format for production. \n\u2022 Generates BOM file in correct format for production. \n\u2022 Generates Pick and Place file in correct format for assembly. \n\u2022 Automatic and manual component translations. \n\u2022 Many more unique additional features. \n\u2665 https://github.com/sponsors/bennymeg",
-    "identifier": "com.github.bennymeg.JLC-Plugin-for-KiCad",
+    "description_full": "Toolkit for automating PCB fabrication process with KiCad and JLC PCB. \n\n Features: \n\u2022 Generates gerber files in correct format for production. \n\u2022 Generates BOM file in correct format for production. \n\u2022 Generates Pick and Place file in correct format for assembly. \n\u2022 Automatic and manual component translations. \n\u2022 Many more unique additional features.",
+    "identifier": "com.github.wc7086.JLC-Plugin-for-KiCad-Plus",
     "type": "plugin",
     "author": {
-        "name": "Benny Megidish",
+        "name": "wc7086",
         "contact": {
-            "web": "https://github.com/bennymeg/Fabrication-Toolkit"
+            "web": "https://github.com/wc7086/Fabrication-Toolkit-Plus"
         }
     },
     "maintainer": {
-        "name": "Benny Megidish",
+        "name": "wc7086",
         "contact": {
-            "web": "https://github.com/bennymeg/Fabrication-Toolkit"
+            "web": "https://github.com/wc7086/Fabrication-Toolkit-Plus"
         }
     },
     "license": "Apache-2.0",
     "resources": {
-        "homepage": "https://github.com/bennymeg/Fabrication-Toolkit",
-        "Sponsor": "https://github.com/sponsors/bennymeg"
+        "homepage": "https://github.com/wc7086/Fabrication-Toolkit-Plus",
+        "Sponsor": "https://github.com/wc7086"
     },
     "tags": [
         "jlc",
