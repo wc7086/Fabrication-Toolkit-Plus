@@ -13,7 +13,7 @@ import datetime
 
 # Interaction with KiCad.
 import pcbnew  # type: ignore
-from .utils import footprint_has_field, footprint_get_field, get_plot_plan
+from .utils import footprint_has_field, footprint_get_field, get_plot_plan, rename_files_with_mapping
 
 # Application definitions.
 from .config import *
@@ -275,16 +275,23 @@ class ProcessManager:
 
     def fuck_jlc(self, temp_dir, header, fuck_jlc):
         if fuck_jlc:
+            mapping_file = os.path.join(os.path.dirname(__file__), 'mapping.csv')
+            rename_files_with_mapping(mapping_file,temp_dir)
             format_header = header.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
             for filename in os.listdir(temp_dir):
                 file_path = os.path.join(temp_dir, filename)
                 try:
-                    with open (file_path, 'r+', encoding='utf-8') as f:
-                        original_content = f.read()
-                        f.seek(0,0)
-                        for line in format_header:
-                            f.write(line)
-                        f.write(original_content)
+                    with open(file_path, 'r+', encoding='utf-8') as f:
+                        lines = f.readlines()
+                        f.seek(0)
+                        f.truncate()
+                        header_written = False
+                        for line in lines:
+                            if 'TF.' not in line and 'KiCad' not in line:
+                                if not header_written:
+                                    f.write(format_header + '\n')
+                                    header_written = True
+                                f.write(line)
                 except UnicodeDecodeError:
                     return False
                 except Exception:

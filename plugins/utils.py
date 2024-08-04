@@ -76,3 +76,23 @@ def get_layer_names(board, active_only=True):
     """Returns a list of (active) layer names of the current board"""
     plotPlan = get_plot_plan(board, active_only)
     return [layer_info[0] for layer_info in plotPlan]
+
+def rename_files_with_mapping(mapping_file, folder):
+    with open(mapping_file, 'r', encoding='utf-8') as f:
+        mapping_lines = f.readlines()
+
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        if os.path.isfile(file_path):
+            mapped = False
+            for line in mapping_lines:
+                if line.strip():
+                    old_part, new_filename = map(str.strip, line.split(','))
+                    if old_part in filename:
+                        new_file_path = os.path.join(folder, new_filename)
+                        os.rename(file_path, new_file_path)
+                        mapped = True
+                        break
+
+            if not mapped:
+                os.remove(file_path)
