@@ -3,6 +3,7 @@ import os
 import json
 from .config import optionsFileName
 import wx
+import shutil
 
 def get_version():
     return float('.'.join(pcbnew.GetBuildVersion().split(".")[0:2]))  # e.g GetBuildVersion(): e.g. '7.99.0-3969-gc5ac2337e4'
@@ -18,7 +19,7 @@ def is_v7(version = get_version()):
 
 def is_v6(version = get_version()):
     return version >= 5.99 and version < 6.99
-                 
+
 def footprint_has_field(footprint, field_name):
     version = get_version()
     
@@ -77,22 +78,33 @@ def get_layer_names(board, active_only=True):
     plotPlan = get_plot_plan(board, active_only)
     return [layer_info[0] for layer_info in plotPlan]
 
-def rename_files_with_mapping(mapping_file, folder):
-    with open(mapping_file, 'r', encoding='utf-8') as f:
-        mapping_lines = f.readlines()
-
+def rename_files_with_mapping(gerber_dict, folder):
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
         if os.path.isfile(file_path):
-            mapped = False
-            for line in mapping_lines:
-                if line.strip():
-                    old_part, new_filename = map(str.strip, line.split(','))
-                    if old_part in filename:
-                        new_file_path = os.path.join(folder, new_filename)
-                        os.rename(file_path, new_file_path)
-                        mapped = True
-                        break
+            for key, new_name in gerber_dict.items():
+                if key in filename:
+                    new_file_path = os.path.join(folder, new_name)
+                    shutil.copyfile(file_path, new_file_path)
+                    break
 
-            if not mapped:
-                os.remove(file_path)
+
+def process_file(file_path, format_header):
+    try:
+        with open(file_path, "r+", encoding="utf-8") as f:
+            lines = f.readlines()
+            f.seek(0)
+            f.truncate()
+            header_written = False
+            for line in lines:
+                if "TF." not in line and "KiCad" not in line:
+                    if not header_written:
+                        f.write(format_header + "\n")
+                        header_written = True
+                    f.write(line)
+    except UnicodeDecodeError:
+        return False
+    except Exception as e:
+        print(f"Error processing file {file_path}: {e}")
+        return False
+    return True

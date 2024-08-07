@@ -4,7 +4,7 @@ import pcbnew # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, EXTRA_LAYERS, FUCK_JLC
+from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, EXTRA_LAYERS, LOVE_JLC
 from .utils import load_user_options, save_user_options, get_layer_names
 
 
@@ -33,7 +33,7 @@ class KiCadToJLCForm(wx.Frame):
             AUTO_TRANSLATE_OPT: True,
             AUTO_FILL_OPT: True,
             EXCLUDE_DNP_OPT: False,
-            FUCK_JLC: False
+            LOVE_JLC: False
         })
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
@@ -55,7 +55,7 @@ class KiCadToJLCForm(wx.Frame):
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components from BOM')
         self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
         self.mFuckJLCCheckbox = wx.CheckBox(self, label='Fuck JLC')
-        self.mFuckJLCCheckbox.SetValue(userOptions[FUCK_JLC])
+        self.mFuckJLCCheckbox.SetValue(userOptions[LOVE_JLC])
 
         self.mGaugeStatus = wx.Gauge(
             self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(600, 20), wx.GA_HORIZONTAL)
@@ -92,7 +92,7 @@ class KiCadToJLCForm(wx.Frame):
         options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslationCheckbox.GetValue()
         options[AUTO_FILL_OPT] = self.mAutomaticFillCheckbox.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
-        options[FUCK_JLC] = self.mFuckJLCCheckbox.GetValue()
+        options[LOVE_JLC] = self.mFuckJLCCheckbox.GetValue()
 
         save_user_options(options)
 

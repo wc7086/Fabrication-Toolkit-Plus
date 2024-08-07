@@ -10,10 +10,11 @@ import shutil
 from collections import defaultdict
 from typing import Tuple
 import datetime
+from .gerber_mapping import Gerber
 
 # Interaction with KiCad.
 import pcbnew  # type: ignore
-from .utils import footprint_has_field, footprint_get_field, get_plot_plan, rename_files_with_mapping
+from .utils import footprint_has_field, footprint_get_field, get_plot_plan, rename_files_with_mapping, process_file
 
 # Application definitions.
 from .config import *
@@ -273,30 +274,23 @@ class ProcessManager:
                     if ('**' not in component['Designator']):
                         csv_writer.writerow(component.values())
 
-    def fuck_jlc(self, temp_dir, header, fuck_jlc):
-        if fuck_jlc:
-            mapping_file = os.path.join(os.path.dirname(__file__), 'mapping.csv')
-            rename_files_with_mapping(mapping_file,temp_dir)
-            format_header = header.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-            for filename in os.listdir(temp_dir):
-                file_path = os.path.join(temp_dir, filename)
-                try:
-                    with open(file_path, 'r+', encoding='utf-8') as f:
-                        lines = f.readlines()
-                        f.seek(0)
-                        f.truncate()
-                        header_written = False
-                        for line in lines:
-                            if 'TF.' not in line and 'KiCad' not in line:
-                                if not header_written:
-                                    f.write(format_header + '\n')
-                                    header_written = True
-                                f.write(line)
-                except UnicodeDecodeError:
-                    return False
-                except Exception:
-                    return False
-            return True
+    def love_jlc(self, temp_dir, temp_dir_jlc, header):
+        kicad_mapping = Gerber.get('KiCad', {})
+        rename_files_with_mapping(kicad_mapping, temp_dir)
+        format_header = header.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+        for key, file_name_jlc in kicad_mapping.items():
+            src = os.path.join(temp_dir, file_name_jlc)
+            dst = os.path.join(temp_dir_jlc, file_name_jlc)
+            if os.path.exists(src):
+                shutil.move(src, dst)
+
+        for filename in os.listdir(temp_dir_jlc):
+            file_path = os.path.join(temp_dir_jlc, filename)
+            if not process_file(file_path, format_header):
+                return False
+
+        return True
 
     def generate_archive(self, temp_dir, temp_file):
         '''Generate the archive file.'''

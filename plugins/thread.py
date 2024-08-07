@@ -27,9 +27,12 @@ class ProcessThread(Thread):
 
         temp_dir = tempfile.mkdtemp()
         temp_dir_gerber = temp_dir + "_g"
+        temp_dir_jlc = temp_dir + "_jlc"
         os.makedirs(temp_dir_gerber)
+        os.makedirs(temp_dir_jlc)
 
         _, temp_file = tempfile.mkstemp()
+        _, temp_file_jlc = tempfile.mkstemp()
         project_directory = os.path.dirname(self.process_manager.board.GetFileName())
 
         try:
@@ -62,9 +65,14 @@ class ProcessThread(Thread):
             self.progress(70)
             self.process_manager.generate_bom(temp_dir)
 
-            # Fuck JLC
-            self.progress(75)
-            self.process_manager.fuck_jlc(temp_dir_gerber, JLC_HEADER, self.options[FUCK_JLC])
+            # Love JLC
+            if self.options[LOVE_JLC]:
+                self.progress(75)
+                self.process_manager.love_jlc(temp_dir_gerber, temp_dir_jlc, JLC_HEADER)
+                temp_file_jlc = self.process_manager.generate_archive(temp_dir_jlc, temp_file_jlc)
+                shutil.move(temp_file_jlc, temp_dir)
+                shutil.rmtree(temp_dir_jlc)
+                temp_file_jlc = os.path.join(temp_dir, os.path.basename(temp_file_jlc))
 
             # generate production archive
             self.progress(85)
@@ -112,11 +120,18 @@ class ProcessThread(Thread):
         # rename gerber archive
         gerberArchiveName = ProcessManager.normalize_filename("_".join(("{} {}".format(title or filename, revision or '').strip() + '.zip').split()))
         os.rename(temp_file, os.path.join(temp_dir, gerberArchiveName))
+        if self.options[LOVE_JLC]:
+            gerberArchiveNameJLC = ProcessManager.normalize_filename("_".join(("{} {}".format(title or filename, revision or '').strip() + ' JLC.zip').split()))
+            os.rename(temp_file_jlc, os.path.join(temp_dir, gerberArchiveNameJLC))
 
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
         backup_name = ProcessManager.normalize_filename("_".join(("{} {} {}".format(title or filename, revision or '', timestamp).strip()).split()))
         shutil.make_archive(os.path.join(output_path, 'backups', backup_name), 'zip', temp_dir)
 
+        # delete old files
+        for file in os.listdir(output_path):
+            if os.path.isfile(os.path.join(output_path, file)) and file != 'backups':
+                os.remove(os.path.join(output_path, file))
 
         # copy to & open output dir
         try:
